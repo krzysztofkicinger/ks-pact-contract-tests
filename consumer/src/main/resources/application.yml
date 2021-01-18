@@ -1,0 +1,7 @@
+server:
+  port: 8080
+
+application:
+  services:
+    provider:
+      url: http://localhost:8081

@@ -16,7 +16,6 @@ services:
     image: pactfoundation/pact-broker
     ports:
       - "9292:9292"
-      - "8085:80"
     environment:
       PACT_BROKER_DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
     networks:
