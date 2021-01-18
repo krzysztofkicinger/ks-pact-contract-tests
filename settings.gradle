@@ -1,4 +1,5 @@
 rootProject.name = 'ks-pact-contract-tests'
 include 'consumer'
 include 'provider'
+include 'contract'
 

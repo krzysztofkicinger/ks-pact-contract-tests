@@ -78,4 +78,7 @@ dependencies {
 }
 ```
 
+STEP 3: Publish contract requirements in Constructor
+
+
 

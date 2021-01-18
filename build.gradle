@@ -6,6 +6,7 @@ buildscript {
         springCloudVersion = '2020.0.0'
         springDependencyManagement = '1.0.9.RELEASE'
         pactVersion = '4.0.10'
+        jacksonModuleKotlin = '2.9.8'
     }
     repositories {
         mavenCentral()
@@ -51,6 +52,7 @@ subprojects {
         annotationProcessor 'org.projectlombok:lombok:' + String.valueOf(lombokVersion)
 
         implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+        implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:' + String.valueOf(jacksonModuleKotlin)
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'

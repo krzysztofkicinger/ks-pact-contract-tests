@@ -20,6 +20,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    api project(':contract')
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "au.com.dius:pact-jvm-consumer-junit5:$pactVersion"
 }
