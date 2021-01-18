@@ -1,3 +1,17 @@
+STEP 0: Run pact broker
+
+Go to the terminal (ALT + F12)
+
+```text
+cd docker
+docker-compose up
+```
+
+Browser: http://localhost:9292
+Browser: http://<docker_ip>:9292
+
+check initial pact broker
+
 STEP 1: Add pact to the project
 
 Add plugin definition to the main project:
