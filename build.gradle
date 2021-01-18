@@ -1,19 +1,77 @@
+buildscript {
+    ext {
+        kotlinVersion = "1.4.21"
+        lombokVersion = "1.18.16"
+        springBootVersion = '2.3.3.RELEASE'
+        springCloudVersion = '2020.0.0'
+        springDependencyManagement = '1.0.9.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
 plugins {
     id 'java'
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+    id 'org.springframework.boot' version "$springBootVersion"
+    id 'io.spring.dependency-management' version "$springDependencyManagement"
 }
 
-group 'org.kicinger.ks'
+group 'com.kicinger.ks'
 version '0.0.1'
 
-repositories {
-    mavenCentral()
+allprojects {
+    group 'com.kicinger.ks'
+    version '0.0.1'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+
 }
 
-dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+        implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+        testImplementation "org.junit.jupiter:junit-jupiter-api"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
 }
 
-test {
-    useJUnitPlatform()
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+bootJar {
+    enabled = false
 }
