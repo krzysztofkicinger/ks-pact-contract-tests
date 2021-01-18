@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      services-network:
+        aliases:
+          - db
+  pact:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9292:9292"
+      - "8085:80"
+    environment:
+      PACT_BROKER_DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+    networks:
+      services-network:
+        aliases:
+          - pact
+    depends_on:
+      - db
+
+networks:
+  services-network:
+    name: pact-network
+    driver: bridge
