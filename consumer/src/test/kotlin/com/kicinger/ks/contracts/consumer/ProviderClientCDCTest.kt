@@ -8,6 +8,7 @@ import au.com.dius.pact.consumer.junit5.PactTestFor
 import au.com.dius.pact.core.model.RequestResponsePact
 import au.com.dius.pact.core.model.annotations.Pact
 import com.kicinger.ks.contracts.contract.Health
+import com.kicinger.ks.contracts.contract.Message
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus.OK
 import org.springframework.web.client.RestTemplate
@@ -72,26 +74,62 @@ internal class ProviderClientCDCTest {
     // @formatter:on
 
     // @formatter:off
+    @Pact(consumer = CONSUMER)
+    fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
+            .given("Some message exists in the system")
+            .uponReceiving("should receive a message")
+                .method("GET")
+                .path("/api/messages/.*")
+            .willRespondWith()
+                .status(OK.value())
+                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+                .body(PactDslJsonBody()
+                        .numberType("id")
+                        .stringType("author")
+                        .stringType("message"))
+            .toPact()
+
+    @Test
+    @PactTestFor(pactMethod = "getMessage")
+    internal fun getMessageTest() {
+        val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+
+        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
+        assertThat(response.statusCode).isEqualTo(OK)
+        assertThat(response.body!!.id).isNotNull()
+        assertThat(response.body!!.author).isNotEmpty()
+        assertThat(response.body!!.message).isNotEmpty()
+    }
+    // @formatter:on
+
+    // @formatter:off
 //    @Pact(consumer = CONSUMER)
-//    fun getMessageFromProvider(build: PactDslWithProvider): RequestResponsePact = build
-//            .given("")
-//            .uponReceiving("Changed contract")
-//                .method(GET.name)
-//                .path(GET_MESSAGE_PATH)
+//    fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
+//            .given("No message exists in the system")
+//                .uponReceiving("should create a message")
+//                .method("POST")
+//                .path("/api/messages")
+//                .headers(mapOf(
+//                        CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
+//                        ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
+//                ))
+//                .body(PactDslJsonBody()
+//                        .stringMatcher("author", "[a-zA-Z]{10}", "John")
+//                        .stringMatcher("message", "\\s", "Lorem ipsum")
+//                )
 //            .willRespondWith()
 //                .status(OK.value())
+//                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
 //                .body(PactDslJsonBody()
-//                        .numberType("id")
-//                        .stringType("author")
-//                        .stringType("message"))
+//                    .numberType("id")
+//                    .stringType("author")
+//                    .stringType("message"))
 //            .toPact()
-    // @formatter:on
 //
 //    @Test
-//    @PactTestFor(pactMethod = "getMessageFromProvider")
-//    // 2. HOW DOES IT WORK?: Send a real request to a mock provider
-//    internal fun getMessageFromProviderTest() {
-//        val response = restTemplate.getForEntity(GET_MESSAGE_PATH, Message::class.java)
+//    @PactTestFor(pactMethod = "createMessage")
+//    internal fun createMessageTest() {
+//        val response = restTemplate.postForEntity("/api/messages", Message::class.java)
 //
 //        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
 //        assertThat(response.statusCode).isEqualTo(OK)
@@ -99,4 +137,7 @@ internal class ProviderClientCDCTest {
 //        assertThat(response.body!!.author).isNotEmpty()
 //        assertThat(response.body!!.message).isNotEmpty()
 //    }
+    // @formatter:on
+
+
 }

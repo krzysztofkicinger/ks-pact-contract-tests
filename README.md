@@ -243,7 +243,7 @@ To publish pacts to pact broker, use the following command:
 ./gradlew :provider:test
 ```
 
-### STEP 6: Request the contract from provider according to the definitions
+### STEP 8: Request the contract from provider according to the definitions
 
 **GET /api/messages/{messageId}**
 
@@ -251,9 +251,41 @@ To publish pacts to pact broker, use the following command:
 | --- | --- |
 | Method                    | GET |
 | Path                      | /api/messages/{messageId} |
-| Request Headers           | Accept: application/vnd.contract-tests-app.messages.v1+json |
 | Response Headers          | Content-Type: application/vnd.pricing-facade.messages.v1+json |
 | Response Schema           | ```{ "id": "<number>", "author": "<string>", "message": <string> }``` |
+
+<details>
+  <summary>GET Request</summary>
+
+```shell
+@Pact(consumer = CONSUMER)
+fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
+        .given("Some message exists in the system")
+        .uponReceiving("should receive a message")
+            .method("GET")
+            .path("/api/messages/.*")
+        .willRespondWith()
+            .status(OK.value())
+            .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+            .body(PactDslJsonBody()
+                    .numberType("id")
+                    .stringType("author")
+                    .stringType("message"))
+        .toPact()
+
+@Test
+@PactTestFor(pactMethod = "getMessage")
+internal fun getMessageTest() {
+    val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+
+    // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
+    assertThat(response.statusCode).isEqualTo(OK)
+    assertThat(response.body!!.id).isNotNull()
+    assertThat(response.body!!.author).isNotEmpty()
+    assertThat(response.body!!.message).isNotEmpty()
+}
+```
+</details>
 
 **POST /api/messages**
 
@@ -265,6 +297,39 @@ To publish pacts to pact broker, use the following command:
 | Response Schema           | ```{ "author": "<string>", "message": <string> }``` |
 | Response Headers          | Content-Type: application/vnd.pricing-facade.messages.v1+json |
 | Response Schema           | ```{ "id": "<number>", "author": "<string>", "message": <string> }``` |
+
+<details>
+  <summary>GET Request</summary>
+
+```shell
+@Pact(consumer = CONSUMER)
+fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
+        .given("Some message exists in the system")
+        .uponReceiving("should receive a message")
+            .method("GET")
+            .path("/api/messages/.*")
+        .willRespondWith()
+            .status(OK.value())
+            .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+            .body(PactDslJsonBody()
+                    .numberType("id")
+                    .stringType("author")
+                    .stringType("message"))
+        .toPact()
+
+@Test
+@PactTestFor(pactMethod = "getMessage")
+internal fun getMessageTest() {
+    val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+
+    // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
+    assertThat(response.statusCode).isEqualTo(OK)
+    assertThat(response.body!!.id).isNotNull()
+    assertThat(response.body!!.author).isNotEmpty()
+    assertThat(response.body!!.message).isNotEmpty()
+}
+```
+</details>
 
 ### STEP 6: Provide the contract on the provider side (+ verify the contract)
 
