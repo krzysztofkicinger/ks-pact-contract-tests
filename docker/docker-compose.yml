@@ -8,24 +8,26 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
-    networks:
-      services-network:
-        aliases:
-          - db
+#    networks:
+#      services-network:
+#        aliases:
+#          - db
   pact:
     image: pactfoundation/pact-broker
     ports:
       - "9292:9292"
     environment:
       PACT_BROKER_DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
-    networks:
-      services-network:
-        aliases:
-          - pact
+#    networks:
+#      services-network:
+#        aliases:
+#          - pact
+    links:
+      - db
     depends_on:
       - db
 
-networks:
-  services-network:
-    name: pact-network
-    driver: bridge
+#networks:
+#  services-network:
+#    name: pact-network
+#    driver: bridge

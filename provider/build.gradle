@@ -1,12 +1,15 @@
+// STEP 6
+buildscript {
+    ext {
+        pactSpringVersion = '4.1.14'
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-}
-
-repositories {
-    mavenCentral()
-    maven { url "https://nexus.shared.k8s.worldremit.com/repository/maven-releases/" }
+    id "au.com.dius.pact"   // STEP 6
 }
 
 dependencyManagement {
@@ -18,7 +21,26 @@ dependencyManagement {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-test'
 
     api project(':contract')
+
+    // STEP 6
+    testImplementation("au.com.dius.pact.provider:junit5spring:${pactSpringVersion}")
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+springBoot {
+    mainClassName = 'com.kicinger.ks.contracts.provider.ProviderApplicationKt'
+}
+
+// STEP 6
+pact {
+    serviceProviders {
+        'provider' {
+            host = 'localhost'
+            port = 8081
+
+            hasPactsFromPactBroker("$pact_broker_scheme://$pact_broker_host:$pact_broker_port")
+        }
+    }
 }

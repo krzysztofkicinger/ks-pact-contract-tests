@@ -18,6 +18,4 @@ class ProviderClient(
 
     fun getMessage(): ResponseEntity<Message> = restTemplate.getForEntity(GET_MESSAGE_PATH, Message::class.java)
 
-//    fun createMessage() = restTemplate.postForEntity()
-
 }

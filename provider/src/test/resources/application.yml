@@ -1,0 +1,8 @@
+server:
+  port: 8081
+
+# STEP 6.2
+pactbroker:
+  scheme: http
+  host: localhost
+  port: 9292

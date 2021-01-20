@@ -1,13 +1,18 @@
+buildscript {
+    ext {
+        pactJUnit5Version = '4.0.10'  // STEP 3
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id "au.com.dius.pact"
+    id "au.com.dius.pact" // STEP 2
 }
 
 repositories {
     mavenCentral()
-    maven { url "https://nexus.shared.k8s.worldremit.com/repository/maven-releases/" }
 }
 
 dependencyManagement {
@@ -23,35 +28,12 @@ dependencies {
     api project(':contract')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "au.com.dius:pact-jvm-consumer-junit5:$pactVersion"
+    testImplementation "au.com.dius:pact-jvm-consumer-junit5:$pactJUnit5Version" // STEP 3
 }
 
-ext {
-    broker_host = 'localhost'
-    broker_port = '9292'
-    broker_scheme = 'http'
-    java_Version = JavaVersion.VERSION_11
-    api_Verion = '1.3'
-}
-
+// STEP 3
 pact {
     publish {
-        pactBrokerUrl = "$broker_scheme://$broker_host:$broker_port"
-    }
-}
-
-task contractTest(type: Test) {
-    description = "Consumer Driven Contract - PACT Based"
-    group = "verification"
-
-    systemProperty "pact.verifier.publishResults", "true"
-    systemProperty "pactbroker.host", broker_host
-    systemProperty "pactbroker.port", broker_port
-    systemProperty "pactbroker.scheme", broker_scheme
-
-    useJUnitPlatform()
-
-    testLogging {
-        events "passed", "skipped", "failed"
+        pactBrokerUrl = "$pact_broker_scheme://$pact_broker_host:$pact_broker_port"
     }
 }

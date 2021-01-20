@@ -5,8 +5,13 @@ buildscript {
         springBootVersion = '2.3.3.RELEASE'
         springCloudVersion = '2020.0.0'
         springDependencyManagement = '1.0.9.RELEASE'
-        pactVersion = '4.0.10'
         jacksonModuleKotlin = '2.9.8'
+
+        pactVersion = '4.1.15'  // STEP 2
+
+        pact_broker_scheme = "http"  // STEP 2
+        pact_broker_host = "localhost" // STEP 2
+        pact_broker_port = "9292" // STEP 2
     }
     repositories {
         mavenCentral()
@@ -19,7 +24,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
     id 'org.springframework.boot' version "$springBootVersion"
     id 'io.spring.dependency-management' version "$springDependencyManagement"
-    id "au.com.dius.pact" version "$pactVersion"
+    id "au.com.dius.pact" version "$pactVersion" // STEP 2
 }
 
 group 'com.kicinger.ks'
@@ -47,12 +52,18 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'org.jetbrains.kotlin.jvm'
 
-    dependencies {
-        compileOnly 'org.projectlombok:lombok:' + String.valueOf(lombokVersion)
-        annotationProcessor 'org.projectlombok:lombok:' + String.valueOf(lombokVersion)
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
 
-        implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-        implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:' + String.valueOf(jacksonModuleKotlin)
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+        compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+        compile "com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonModuleKotlin}"
 
         testImplementation 'org.junit.jupiter:junit-jupiter-api'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
