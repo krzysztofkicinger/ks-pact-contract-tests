@@ -237,8 +237,6 @@ fun toGetState() {
 
 ### STEP 7: Verify whether the provider fulfills the contract
 
-To publish pacts to pact broker, use the following command:
-
 ```shell
 ./gradlew :provider:test
 ```
@@ -285,6 +283,7 @@ internal fun getMessageTest() {
     assertThat(response.body!!.message).isNotEmpty()
 }
 ```
+
 </details>
 
 **POST /api/messages**
@@ -299,28 +298,42 @@ internal fun getMessageTest() {
 | Response Schema           | ```{ "id": "<number>", "author": "<string>", "message": <string> }``` |
 
 <details>
-  <summary>GET Request</summary>
+  <summary>POST Request</summary>
 
 ```shell
 @Pact(consumer = CONSUMER)
-fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
-        .given("Some message exists in the system")
-        .uponReceiving("should receive a message")
-            .method("GET")
-            .path("/api/messages/.*")
+fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
+        .given("No message exists in the system")
+            .uponReceiving("should create a message")
+            .method("POST")
+            .path("/api/messages")
+            .headers(mapOf(
+                    CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
+                    ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
+            ))
+            .body(PactDslJsonBody()
+                    .stringMatcher("author", "[a-zA-Z]{1,10}", "John")
+                    .stringType("message", "Lorem ipsum")
+            )
         .willRespondWith()
             .status(OK.value())
             .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
             .body(PactDslJsonBody()
-                    .numberType("id")
-                    .stringType("author")
-                    .stringType("message"))
+                .integerType("id")
+                .stringType("author", "John")
+                .stringType("message", "Lorem ipsum"))
         .toPact()
 
 @Test
-@PactTestFor(pactMethod = "getMessage")
-internal fun getMessageTest() {
-    val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+@PactTestFor(pactMethod = "createMessage")
+internal fun createMessageTest() {
+    val body = CreateMessageCommand("John", "Some message")
+    val headers = HttpHeaders()
+    headers.accept = listOf(parseMediaType("application/vnd.pricing-facade.messages.v1+json"))
+    headers.contentType = parseMediaType("application/vnd.pricing-facade.messages.v1+json")
+
+    val request = HttpEntity(body, headers)
+    val response = restTemplate.postForEntity("/api/messages", request, Message::class.java)
 
     // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
     assertThat(response.statusCode).isEqualTo(OK)
@@ -329,21 +342,47 @@ internal fun getMessageTest() {
     assertThat(response.body!!.message).isNotEmpty()
 }
 ```
+
 </details>
 
-### STEP 6: Provide the contract on the provider side (+ verify the contract)
+To publish pacts to pact broker, use the following command:
 
-### STEP 7: Verify the contract on producer side (Contracts in isolation)
+```shell
+./gradlew :consumer:test
+./gradlew :consumer:pactPublish
+```
 
-### STEP 8: Verify the contract on producer side (Service (functionality) in isolation)
+### STEP 9: Implement requested endpoints on provider side
 
-STEP 1: Add pact to the project
+```kotlin
+@GetMapping(path = ["/api/messages/{messageId}"], produces = ["application/vnd.pricing-facade.messages.v1+json"])
+fun getMessage(@PathVariable messageId: Long): Message {
+    println("Test: ${messageId}")
+    return messageService.getMessage(messageId)
+}
 
-Add plugin definition to the main project:
+@PostMapping(path = ["/api/messages"], consumes = ["application/vnd.pricing-facade.messages.v1+json"], produces = ["application/vnd.pricing-facade.messages.v1+json"])
+fun getMessage(@RequestBody command: CreateMessageCommand): Message {
+    val id = Random.nextLong(500)
+    return messageService.createMessage(id, command)
+}
+```
 
-STEP 2: Configure pact plugin in Consumer application
+### STEP 10: Verify the contract on producer side
 
-STEP 3: Publish contract requirements in Constructor
+```kotlin
 
+// STEP 10
+@State("Message with ID 1234 exists in the system")
+fun messageWithId1234ExistsState() {
+    messageService.createMessage(1234, CreateMessageCommand("John", "Lorem ipsum"))
+}
 
+// STEP 10
+@State("No message exists in the system")
+fun noMessageExistInTheSystemState() {
+    messageService.clear()
+}
+```
 
+### EXTRAS: Verify the contract on producer side (Contracts in isolation)

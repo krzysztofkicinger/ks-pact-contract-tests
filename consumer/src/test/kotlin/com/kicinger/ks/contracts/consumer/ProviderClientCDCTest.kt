@@ -9,6 +9,7 @@ import au.com.dius.pact.core.model.RequestResponsePact
 import au.com.dius.pact.core.model.annotations.Pact
 import com.kicinger.ks.contracts.contract.Health
 import com.kicinger.ks.contracts.contract.Message
+import com.kicinger.ks.contracts.contract.requests.CreateMessageCommand
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,10 +17,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.ACCEPT
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.MediaType
+import org.springframework.http.MediaType.parseMediaType
+import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 
 const val CONSUMER = "consumer"
@@ -76,15 +81,15 @@ internal class ProviderClientCDCTest {
     // @formatter:off
     @Pact(consumer = CONSUMER)
     fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
-            .given("Some message exists in the system")
-            .uponReceiving("should receive a message")
+            .given("Message with ID 1234 exists in the system")
+            .uponReceiving("should return that message")
                 .method("GET")
-                .path("/api/messages/.*")
+                .path("/api/messages/1234")
             .willRespondWith()
                 .status(OK.value())
                 .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
                 .body(PactDslJsonBody()
-                        .numberType("id")
+                        .numberType("id", 1234)
                         .stringType("author")
                         .stringType("message"))
             .toPact()
@@ -92,7 +97,7 @@ internal class ProviderClientCDCTest {
     @Test
     @PactTestFor(pactMethod = "getMessage")
     internal fun getMessageTest() {
-        val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+        val response = restTemplate.getForEntity("/api/messages/1234", Message::class.java)
 
         // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
         assertThat(response.statusCode).isEqualTo(OK)
@@ -103,40 +108,46 @@ internal class ProviderClientCDCTest {
     // @formatter:on
 
     // @formatter:off
-//    @Pact(consumer = CONSUMER)
-//    fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
-//            .given("No message exists in the system")
-//                .uponReceiving("should create a message")
-//                .method("POST")
-//                .path("/api/messages")
-//                .headers(mapOf(
-//                        CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
-//                        ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
-//                ))
-//                .body(PactDslJsonBody()
-//                        .stringMatcher("author", "[a-zA-Z]{10}", "John")
-//                        .stringMatcher("message", "\\s", "Lorem ipsum")
-//                )
-//            .willRespondWith()
-//                .status(OK.value())
-//                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
-//                .body(PactDslJsonBody()
-//                    .numberType("id")
-//                    .stringType("author")
-//                    .stringType("message"))
-//            .toPact()
-//
-//    @Test
-//    @PactTestFor(pactMethod = "createMessage")
-//    internal fun createMessageTest() {
-//        val response = restTemplate.postForEntity("/api/messages", Message::class.java)
-//
-//        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
-//        assertThat(response.statusCode).isEqualTo(OK)
-//        assertThat(response.body!!.id).isNotNull()
-//        assertThat(response.body!!.author).isNotEmpty()
-//        assertThat(response.body!!.message).isNotEmpty()
-//    }
+    @Pact(consumer = CONSUMER)
+    fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
+            .given("No message exists in the system")
+                .uponReceiving("should create a message")
+                .method("POST")
+                .path("/api/messages")
+                .headers(mapOf(
+                        CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
+                        ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
+                ))
+                .body(PactDslJsonBody()
+                        .stringMatcher("author", "[a-zA-Z]{1,10}", "John")
+                        .stringType("message", "Lorem ipsum")
+                )
+            .willRespondWith()
+                .status(OK.value())
+                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+                .body(PactDslJsonBody()
+                    .integerType("id")
+                    .stringType("author", "John")
+                    .stringType("message", "Lorem ipsum"))
+            .toPact()
+
+    @Test
+    @PactTestFor(pactMethod = "createMessage")
+    internal fun createMessageTest() {
+        val body = CreateMessageCommand("John", "Some message")
+        val headers = HttpHeaders()
+        headers.accept = listOf(parseMediaType("application/vnd.pricing-facade.messages.v1+json"))
+        headers.contentType = parseMediaType("application/vnd.pricing-facade.messages.v1+json")
+
+        val request = HttpEntity(body, headers)
+        val response = restTemplate.postForEntity("/api/messages", request, Message::class.java)
+
+        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
+        assertThat(response.statusCode).isEqualTo(OK)
+        assertThat(response.body!!.id).isNotNull()
+        assertThat(response.body!!.author).isNotEmpty()
+        assertThat(response.body!!.message).isNotEmpty()
+    }
     // @formatter:on
 
 
