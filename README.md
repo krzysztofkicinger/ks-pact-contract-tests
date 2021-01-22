@@ -35,10 +35,9 @@ buildscript {
     ext {
         ...
         pactVersion = '4.1.15'
-        pactJUnit5Version = '4.0.10'
 
         pact_broker_scheme = "http"
-        pact_broker_host = "localhost"
+        pact_broker_host = "localhost/<docker-machine-ip>"
         pact_broker_port = "9292"
     }
 }
@@ -49,20 +48,18 @@ plugins {
 }
 ```
 
-Add plugin usage in consumer and provider applications:
+### STEP 3: Configure Pact plugin in the Customer application
 
-```text
+Add pact plugin configuration that points to the Pact Broker:
+
+```groovy
 plugins {
     ...
     id "au.com.dius.pact"
 }
 ```
 
-### STEP 3: Configure Pact plugin in the Customer application
-
-Add pact plugin configuration that points to the Pact Broker:
-
-```text
+```groovy
 pact {
     publish {
         pactBrokerUrl = "$pact_broker_scheme://$pact_broker_host:$pact_broker_port"

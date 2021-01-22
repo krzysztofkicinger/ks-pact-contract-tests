@@ -1,14 +1,10 @@
-buildscript {
-    ext {
-        pactJUnit5Version = '4.0.10'  // STEP 3
-    }
-}
+// TODO: STEP 3
 
 plugins {
     id 'java'
     id 'org.springframework.boot'
     id 'io.spring.dependency-management'
-    id "au.com.dius.pact" // STEP 2
+    // TODO: STEP 3
 }
 
 repositories {
@@ -28,12 +24,8 @@ dependencies {
     api project(':contract')
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "au.com.dius:pact-jvm-consumer-junit5:$pactJUnit5Version" // STEP 3
+
+    // TODO: STEP 3
 }
 
-// STEP 3
-pact {
-    publish {
-        pactBrokerUrl = "$pact_broker_scheme://$pact_broker_host:$pact_broker_port"
-    }
-}
+// TODO: STEP 3
