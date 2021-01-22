@@ -87,7 +87,7 @@ internal class ProviderClientCDCTest {
                 .path("/api/messages/1234")
             .willRespondWith()
                 .status(OK.value())
-                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+                .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
                 .body(PactDslJsonBody()
                         .numberType("id", 1234)
                         .stringType("author")
@@ -115,8 +115,8 @@ internal class ProviderClientCDCTest {
                 .method("POST")
                 .path("/api/messages")
                 .headers(mapOf(
-                        CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
-                        ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
+                        CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json",
+                        ACCEPT to "application/vnd.pact-contract-test-app.messages.v1+json"
                 ))
                 .body(PactDslJsonBody()
                         .stringMatcher("author", "[a-zA-Z]{1,10}", "John")
@@ -124,7 +124,7 @@ internal class ProviderClientCDCTest {
                 )
             .willRespondWith()
                 .status(OK.value())
-                .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+                .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
                 .body(PactDslJsonBody()
                     .integerType("id")
                     .stringType("author", "John")
@@ -136,8 +136,8 @@ internal class ProviderClientCDCTest {
     internal fun createMessageTest() {
         val body = CreateMessageCommand("John", "Some message")
         val headers = HttpHeaders()
-        headers.accept = listOf(parseMediaType("application/vnd.pricing-facade.messages.v1+json"))
-        headers.contentType = parseMediaType("application/vnd.pricing-facade.messages.v1+json")
+        headers.accept = listOf(parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json"))
+        headers.contentType = parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json")
 
         val request = HttpEntity(body, headers)
         val response = restTemplate.postForEntity("/api/messages", request, Message::class.java)

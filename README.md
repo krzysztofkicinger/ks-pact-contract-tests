@@ -24,8 +24,7 @@ Pact Broker should be available via the link:
 
 ```html
 http://localhost:9292
-http://
-<docker-machine-ip>:9292
+http://<docker-machine-ip>:9292
 ```
 
 ### STEP 2: Add Pact to the project
@@ -249,7 +248,7 @@ fun toGetState() {
 | --- | --- |
 | Method                    | GET |
 | Path                      | /api/messages/{messageId} |
-| Response Headers          | Content-Type: application/vnd.pricing-facade.messages.v1+json |
+| Response Headers          | Content-Type: application/vnd.pact-contract-test-app.messages.v1+json |
 | Response Schema           | ```{ "id": "<number>", "author": "<string>", "message": <string> }``` |
 
 <details>
@@ -264,7 +263,7 @@ fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
             .path("/api/messages/.*")
         .willRespondWith()
             .status(OK.value())
-            .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+            .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
             .body(PactDslJsonBody()
                     .numberType("id")
                     .stringType("author")
@@ -292,9 +291,9 @@ internal fun getMessageTest() {
 | --- | --- |
 | Method                    | POST |
 | Path                      | /api/messages |
-| Request Headers           | Accept: application/vnd.contract-tests-app.messages.v1+json, Content-Type: application/vnd.pricing-facade.messages.v1+json |
+| Request Headers           | Accept: application/vnd.pact-contract-test-app.messages.v1+json, Content-Type: application/vnd.pact-contract-test-app.messages.v1+json |
 | Response Schema           | ```{ "author": "<string>", "message": <string> }``` |
-| Response Headers          | Content-Type: application/vnd.pricing-facade.messages.v1+json |
+| Response Headers          | Content-Type: application/vnd.pact-contract-test-app.messages.v1+json |
 | Response Schema           | ```{ "id": "<number>", "author": "<string>", "message": <string> }``` |
 
 <details>
@@ -308,8 +307,8 @@ fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
             .method("POST")
             .path("/api/messages")
             .headers(mapOf(
-                    CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json",
-                    ACCEPT to "application/vnd.pricing-facade.messages.v1+json"
+                    CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json",
+                    ACCEPT to "application/vnd.pact-contract-test-app.messages.v1+json"
             ))
             .body(PactDslJsonBody()
                     .stringMatcher("author", "[a-zA-Z]{1,10}", "John")
@@ -317,7 +316,7 @@ fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
             )
         .willRespondWith()
             .status(OK.value())
-            .headers(mapOf(CONTENT_TYPE to "application/vnd.pricing-facade.messages.v1+json"))
+            .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
             .body(PactDslJsonBody()
                 .integerType("id")
                 .stringType("author", "John")
@@ -329,8 +328,8 @@ fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
 internal fun createMessageTest() {
     val body = CreateMessageCommand("John", "Some message")
     val headers = HttpHeaders()
-    headers.accept = listOf(parseMediaType("application/vnd.pricing-facade.messages.v1+json"))
-    headers.contentType = parseMediaType("application/vnd.pricing-facade.messages.v1+json")
+    headers.accept = listOf(parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json"))
+    headers.contentType = parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json")
 
     val request = HttpEntity(body, headers)
     val response = restTemplate.postForEntity("/api/messages", request, Message::class.java)
@@ -355,13 +354,13 @@ To publish pacts to pact broker, use the following command:
 ### STEP 9: Implement requested endpoints on provider side
 
 ```kotlin
-@GetMapping(path = ["/api/messages/{messageId}"], produces = ["application/vnd.pricing-facade.messages.v1+json"])
+@GetMapping(path = ["/api/messages/{messageId}"], produces = ["application/vnd.pact-contract-test-app.messages.v1+json"])
 fun getMessage(@PathVariable messageId: Long): Message {
     println("Test: ${messageId}")
     return messageService.getMessage(messageId)
 }
 
-@PostMapping(path = ["/api/messages"], consumes = ["application/vnd.pricing-facade.messages.v1+json"], produces = ["application/vnd.pricing-facade.messages.v1+json"])
+@PostMapping(path = ["/api/messages"], consumes = ["application/vnd.pact-contract-test-app.messages.v1+json"], produces = ["application/vnd.pact-contract-test-app.messages.v1+json"])
 fun getMessage(@RequestBody command: CreateMessageCommand): Message {
     val id = Random.nextLong(500)
     return messageService.createMessage(id, command)
