@@ -201,7 +201,7 @@ pact {
 ```yaml
 pactbroker:
   scheme: http
-  host: localhost
+  host: localhost/<docker-machine-ip>
   port: 9292
 ```
 
@@ -231,7 +231,7 @@ internal fun pactVerificationTestTemplate(context: PactVerificationContext) {
 
 ```kotlin
 @State("Provider is up")
-fun toGetState() {
+fun providerIsUpState() {
 }
 ```
 
