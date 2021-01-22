@@ -371,18 +371,17 @@ fun getMessage(@RequestBody command: CreateMessageCommand): Message {
 ### STEP 10: Verify the contract on producer side
 
 ```kotlin
-
-// STEP 10
 @State("Message with ID 1234 exists in the system")
 fun messageWithId1234ExistsState() {
     messageService.createMessage(1234, CreateMessageCommand("John", "Lorem ipsum"))
 }
 
-// STEP 10
 @State("No message exists in the system")
 fun noMessageExistInTheSystemState() {
     messageService.clear()
 }
+
+private fun MessageService.clear() = messages.clear()
 ```
 
 ### EXTRAS: Verify the contract on producer side (Contracts in isolation)

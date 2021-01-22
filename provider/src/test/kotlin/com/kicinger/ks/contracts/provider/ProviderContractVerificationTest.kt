@@ -51,18 +51,6 @@ class ProviderContractVerificationTest {
     fun providerIsUpState() {
     }
 
-    // STEP 10
-    @State("Message with ID 1234 exists in the system")
-    fun messageWithId1234ExistsState() {
-        messageService.createMessage(1234, CreateMessageCommand("John", "Lorem ipsum"))
-    }
-
-    // STEP 10
-    @State("No message exists in the system")
-    fun noMessageExistInTheSystemState() {
-        messageService.clear()
-    }
-
-    private fun MessageService.clear() = messages.clear()
+    // TODO: STEP 10
 
 }
