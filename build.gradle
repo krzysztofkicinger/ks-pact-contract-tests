@@ -7,11 +7,7 @@ buildscript {
         springDependencyManagement = '1.0.9.RELEASE'
         jacksonModuleKotlin = '2.9.8'
 
-        pactVersion = '4.1.15'  // STEP 2
-
-        pact_broker_scheme = "http"  // STEP 2
-        pact_broker_host = "localhost" // STEP 2
-        pact_broker_port = "9292" // STEP 2
+        // TODO: STEP 2
     }
     repositories {
         mavenCentral()
@@ -24,7 +20,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
     id 'org.springframework.boot' version "$springBootVersion"
     id 'io.spring.dependency-management' version "$springDependencyManagement"
-    id "au.com.dius.pact" version "$pactVersion" // STEP 2
+
+    // TODO: STEP 2
 }
 
 group 'com.kicinger.ks'
