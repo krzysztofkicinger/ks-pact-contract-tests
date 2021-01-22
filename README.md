@@ -24,7 +24,8 @@ Pact Broker should be available via the link:
 
 ```html
 http://localhost:9292
-http://<docker-machine-ip>:9292
+http://
+<docker-machine-ip>:9292
 ```
 
 ### STEP 2: Add Pact to the project
@@ -257,15 +258,15 @@ fun toGetState() {
 ```shell
 @Pact(consumer = CONSUMER)
 fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
-        .given("Some message exists in the system")
-        .uponReceiving("should receive a message")
+        .given("Message with ID 1234 exists in the system")
+        .uponReceiving("should return that message")
             .method("GET")
-            .path("/api/messages/.*")
+            .path("/api/messages/1234")
         .willRespondWith()
             .status(OK.value())
             .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
             .body(PactDslJsonBody()
-                    .numberType("id")
+                    .numberType("id", 1234)
                     .stringType("author")
                     .stringType("message"))
         .toPact()
@@ -273,9 +274,8 @@ fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
 @Test
 @PactTestFor(pactMethod = "getMessage")
 internal fun getMessageTest() {
-    val response = restTemplate.getForEntity("/api/messages/123", Message::class.java)
+    val response = restTemplate.getForEntity("/api/messages/1234", Message::class.java)
 
-    // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
     assertThat(response.statusCode).isEqualTo(OK)
     assertThat(response.body!!.id).isNotNull()
     assertThat(response.body!!.author).isNotEmpty()

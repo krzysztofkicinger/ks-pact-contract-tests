@@ -78,77 +78,7 @@ internal class ProviderClientCDCTest {
     }
     // @formatter:on
 
-    // @formatter:off
-    @Pact(consumer = CONSUMER)
-    fun getMessage(build: PactDslWithProvider): RequestResponsePact = build
-            .given("Message with ID 1234 exists in the system")
-            .uponReceiving("should return that message")
-                .method("GET")
-                .path("/api/messages/1234")
-            .willRespondWith()
-                .status(OK.value())
-                .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
-                .body(PactDslJsonBody()
-                        .numberType("id", 1234)
-                        .stringType("author")
-                        .stringType("message"))
-            .toPact()
-
-    @Test
-    @PactTestFor(pactMethod = "getMessage")
-    internal fun getMessageTest() {
-        val response = restTemplate.getForEntity("/api/messages/1234", Message::class.java)
-
-        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
-        assertThat(response.statusCode).isEqualTo(OK)
-        assertThat(response.body!!.id).isNotNull()
-        assertThat(response.body!!.author).isNotEmpty()
-        assertThat(response.body!!.message).isNotEmpty()
-    }
-    // @formatter:on
-
-    // @formatter:off
-    @Pact(consumer = CONSUMER)
-    fun createMessage(build: PactDslWithProvider): RequestResponsePact = build
-            .given("No message exists in the system")
-                .uponReceiving("should create a message")
-                .method("POST")
-                .path("/api/messages")
-                .headers(mapOf(
-                        CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json",
-                        ACCEPT to "application/vnd.pact-contract-test-app.messages.v1+json"
-                ))
-                .body(PactDslJsonBody()
-                        .stringMatcher("author", "[a-zA-Z]{1,10}", "John")
-                        .stringType("message", "Lorem ipsum")
-                )
-            .willRespondWith()
-                .status(OK.value())
-                .headers(mapOf(CONTENT_TYPE to "application/vnd.pact-contract-test-app.messages.v1+json"))
-                .body(PactDslJsonBody()
-                    .integerType("id")
-                    .stringType("author", "John")
-                    .stringType("message", "Lorem ipsum"))
-            .toPact()
-
-    @Test
-    @PactTestFor(pactMethod = "createMessage")
-    internal fun createMessageTest() {
-        val body = CreateMessageCommand("John", "Some message")
-        val headers = HttpHeaders()
-        headers.accept = listOf(parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json"))
-        headers.contentType = parseMediaType("application/vnd.pact-contract-test-app.messages.v1+json")
-
-        val request = HttpEntity(body, headers)
-        val response = restTemplate.postForEntity("/api/messages", request, Message::class.java)
-
-        // 3. HOW DOES IT WORK?: Compare the actual result with the expected request
-        assertThat(response.statusCode).isEqualTo(OK)
-        assertThat(response.body!!.id).isNotNull()
-        assertThat(response.body!!.author).isNotEmpty()
-        assertThat(response.body!!.message).isNotEmpty()
-    }
-    // @formatter:on
-
+    // TODO: STEP 8 GET
+    // TODO: STEP 8 POST
 
 }
