@@ -132,7 +132,7 @@ fun actuatorHealth(build: PactDslWithProvider): RequestResponsePact = build
 @PactTestFor(pactMethod = "actuatorHealth")
 internal fun actuatorHealthTest() {
     val response = restTemplate.getForEntity(ACTUATOR_HEALTH, Health::class.java)
-
+    
     assertThat(response.statusCode).isEqualTo(OK)
     assertThat(response.body!!.status).isEqualTo("UP")
 }

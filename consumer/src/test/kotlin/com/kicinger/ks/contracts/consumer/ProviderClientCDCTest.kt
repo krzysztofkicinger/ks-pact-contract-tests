@@ -32,51 +32,12 @@ const val PROVIDER = "provider"
 
 const val ACTUATOR_HEALTH = "/actuator/health"
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@ExtendWith(PactConsumerTestExt::class)
-@PactTestFor(providerName = PROVIDER)
-// TODO STEP 4.1 - Add annotations
+// TODO: STEP 4.1
 internal class ProviderClientCDCTest {
 
-    // TODO STEP 4.2 - Add rest template
-    private lateinit var restTemplate: RestTemplate
-
-    @BeforeEach
-    internal fun setUp(mockServer: MockServer) {
-        restTemplate = RestTemplateBuilder()
-                .rootUri(mockServer.getUrl())
-                .build()
-    }
-
-    // TODO STEP 4.3 - Add contract definition
-    // STEP 4: Define the contract requirements for actuator's health endpoint
-    // @formatter:off
-    // BLOG - 1. HOW DOES IT WORK?: Define expected requests and responses
-    @Pact(consumer = CONSUMER)
-    fun actuatorHealth(build: PactDslWithProvider): RequestResponsePact = build
-            .given("Provider is up")
-                .uponReceiving("the status of the application")
-                .method("GET")
-                .path(ACTUATOR_HEALTH)
-            .willRespondWith()
-                .status(OK.value())
-                .headers(mapOf(CONTENT_TYPE to "application/vnd.spring-boot.actuator.v3+json"))
-                .body(PactDslJsonBody()
-                    .stringType("status", "UP"))
-            .toPact()
-
-    // TODO STEP 4.4 - Add contract test
-    @Test
-    @PactTestFor(pactMethod = "actuatorHealth")
-    // BLOG - 2. HOW DOES IT WORK?: Send a real request to a mock provider
-    internal fun actuatorHealthTest() {
-        val response = restTemplate.getForEntity(ACTUATOR_HEALTH, Health::class.java)
-
-        // BLOG - 3. HOW DOES IT WORK?: Compare the actual result with the expected request
-        assertThat(response.statusCode).isEqualTo(OK)
-        assertThat(response.body!!.status).isEqualTo("UP")
-    }
-    // @formatter:on
+    // TODO: STEP 4.2
+    // TODO: STEP 4.3
+    // TODO: STEP 4.4
 
     // TODO: STEP 8 GET
     // TODO: STEP 8 POST
