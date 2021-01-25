@@ -14,18 +14,10 @@ cd docker
 docker-compose up
 ```
 
-If you are working on Windows please additionally invoke the following command:
-
-```shell
-docker-machine ip
-```
-
 Pact Broker should be available via the link:
 
 ```html
 http://localhost:9292
-http://
-<docker-machine-ip>:9292
 ```
 
 ### STEP 2: Add Pact to the project
@@ -37,7 +29,7 @@ buildscript {
         pactVersion = '4.1.15'
 
         pact_broker_scheme = "http"
-        pact_broker_host = "localhost/<docker-machine-ip>"
+        pact_broker_host = "localhost"
         pact_broker_port = "9292"
     }
 }
@@ -198,7 +190,7 @@ pact {
 ```yaml
 pactbroker:
   scheme: http
-  host: localhost/<docker-machine-ip>
+  host: localhost
   port: 9292
 ```
 
